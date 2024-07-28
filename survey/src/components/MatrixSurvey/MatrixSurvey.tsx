@@ -1,12 +1,10 @@
 import * as React from "react";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormHelperText from "@mui/material/FormHelperText";
 import FormLabel from "@mui/material/FormLabel";
 import Button from "@mui/material/Button";
-import { options, questions } from "./survey-config";
+import { questions } from "./survey-config";
+import Question from "./Question";
 
 export default function ErrorRadios() {
   const [value, setValue] = React.useState("");
@@ -58,23 +56,7 @@ export default function ErrorRadios() {
       <FormControl sx={{ m: 3 }} error={error} variant="standard">
         <FormLabel id="demo-error-radios">Pop quiz: MUI is...</FormLabel>
         {questions.map((question) => (
-          <div>
-            <RadioGroup
-              aria-labelledby="demo-error-radios"
-              name="quiz"
-              value={value}
-              onChange={handleRadioChange}
-            >
-              <p>{question.text}</p>
-              {options.map((option) => (
-                <FormControlLabel
-                  value={option.value}
-                  control={<Radio />}
-                  label={option.text}
-                />
-              ))}
-            </RadioGroup>
-          </div>
+          <Question text={question.text} />
         ))}
 
         <FormHelperText>{helperText}</FormHelperText>
