@@ -2,8 +2,6 @@ import os
 import tkinter as tk
 from tkinter import messagebox
 from cryptography.fernet import Fernet
-import base64
-import hashlib
 import requests
 import json
 
