@@ -1,12 +1,16 @@
-import React from "react";
-import logo from "./logo.svg";
 import "./App.css";
-import SurveyComponent from "./components/MatrixSurvey/MatrixSurvey";
+import { ThemeProvider } from "@mui/material";
+import theme from "./theme";
+import SurveyDescription from "./components/SurveyDescription";
+import SurveyForm from "./components/SurveyForm";
 
 function App() {
   return (
     <div className="App">
-      <SurveyComponent />
+      <ThemeProvider theme={theme}>
+        <SurveyDescription />
+        <SurveyForm />
+      </ThemeProvider>
     </div>
   );
 }

@@ -5,7 +5,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import { options } from "./survey-config";
 
 export default function Question({ text }: { text: string }) {
-  const [value, setValue] = React.useState("");
+  const [value, setValue] = React.useState("1");
 
   const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue((event.target as HTMLInputElement).value);
